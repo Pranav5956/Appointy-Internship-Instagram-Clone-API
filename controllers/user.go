@@ -17,15 +17,20 @@ type UserController struct {
 	client *mongo.Client
 }
 
+// Instantiates a new UserController with a MongoDB Client
 func NewUserController(client *mongo.Client) *UserController {
 	return &UserController{client}
 }
 
+// Create a new user.
+// route: /users
+// method: POST
 func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	u := models.User{}
 	json.NewDecoder(r.Body).Decode(&u)
 
 	u.Id = primitive.NewObjectID()
+	// Hash the password using bcrypt
 	hpwd, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
 	if err != nil {
 		fmt.Println(err)
@@ -51,6 +56,9 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Write(uj)
 }
 
+// Get details of a user by their ID.
+// route: /users/<id>
+// method: GET
 func (uc UserController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	splitPath := strings.Split(r.URL.Path, "/")
 	id := splitPath[len(splitPath)-1]

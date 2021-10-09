@@ -19,10 +19,14 @@ type PostController struct {
 	client *mongo.Client
 }
 
+// Instantiates a new PostController using a MongoDB Client.
 func NewPostController(client *mongo.Client) *PostController {
 	return &PostController{client}
 }
 
+// Create a new post.
+// route: /posts
+// method: POST
 func (pc PostController) CreatePost(w http.ResponseWriter, r *http.Request) {
 	p := models.Post{}
 	json.NewDecoder(r.Body).Decode(&p)
@@ -45,6 +49,9 @@ func (pc PostController) CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write(pj)
 }
 
+// Get details of a post by it's ID.
+// route: /posts/<id>
+// method: GET
 func (pc PostController) GetPostById(w http.ResponseWriter, r *http.Request) {
 	splitPath := strings.Split(r.URL.Path, "/")
 	id := splitPath[len(splitPath)-1]
@@ -76,6 +83,10 @@ func (pc PostController) GetPostById(w http.ResponseWriter, r *http.Request) {
 	w.Write(pj)
 }
 
+// Get details of all posts of an author by ID.
+// route: /posts/users/<id>
+// method: GET
+// query: page
 func (pc PostController) GetPostsOfUser(w http.ResponseWriter, r *http.Request) {
 	splitPath := strings.Split(r.URL.Path, "/")
 	id := splitPath[len(splitPath)-1]
@@ -83,6 +94,7 @@ func (pc PostController) GetPostsOfUser(w http.ResponseWriter, r *http.Request) 
 	if pq == "" {
 		pq = "1"
 	}
+	// Get current page from URL query params
 	page, _ := strconv.Atoi(pq)
 	var perPage int64 = 5
 
@@ -95,7 +107,7 @@ func (pc PostController) GetPostsOfUser(w http.ResponseWriter, r *http.Request) 
 
 	filters := bson.M{"author": oid}
 	options := options.Find()
-
+	// Set options to limit and skip for pagination
 	options.SetLimit(perPage)
 	options.SetSkip((int64(page) - 1) * perPage)
 
@@ -108,9 +120,11 @@ func (pc PostController) GetPostsOfUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Get total documents and total pages for pagination
 	count, _ := GetTotalCount(pc.client.Database("InstagramCloneAPI").Collection("posts"), filters)
 	total_pages := math.Ceil(float64(count) / float64(perPage))
 
+	// Include necessary information to provide pagination on client side.
 	rs := bson.M{
 		"result":        p,
 		"page":          page,

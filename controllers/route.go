@@ -5,11 +5,13 @@ import (
 	"regexp"
 )
 
+// Helper function to handle method not allowed error
 func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	w.Write([]byte("method not allowed"))
 }
 
+// Helper function to handle page not found error
 func PageNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("page not found"))

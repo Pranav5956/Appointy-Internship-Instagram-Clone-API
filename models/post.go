@@ -4,6 +4,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// This is the schema of the Post document in MongoDB.
+// Id is the object id given by MongoDB.
+// Caption and Image URL are strings.
+// PostedTimestamp is an int, which contains the unix timestamp.
+// Author is the object ID pointing to a User document.
 type Post struct {
 	Id              primitive.ObjectID `json:"id" bson:"_id"`
 	Caption         string             `json:"caption" bson:"caption"`
